@@ -33,18 +33,6 @@ const validationUpdateUserProfile = celebrate({
   }),
 });
 
-const validationGetUser = celebrate({
-  params: Joi.object().keys({
-    userId: Joi.string().custom(customValidationObjectId, 'custom objectId validation'),
-  }),
-});
-
-const validationUpdateUserAvatar = celebrate({
-  body: Joi.object().keys({
-    avatar: Joi.string().pattern(/^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/),
-  }),
-});
-
 const validationCreateCard = celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
@@ -62,8 +50,6 @@ module.exports = {
   validationSignup,
   validationSignin,
   validationUpdateUserProfile,
-  validationGetUser,
-  validationUpdateUserAvatar,
   validationCreateCard,
   validationParamsControllersCards,
 };

@@ -6,12 +6,6 @@ const DataNotFoundError = require('../errors/DataNotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 
-module.exports.getUsers = (req, res, next) => {
-  User.find({})
-    .then((users) => res.send({ data: users }))
-    .catch(next);
-};
-
 module.exports.getUserMe = (req, res, next) => {
   const { _id } = req.user;
 
@@ -31,64 +25,13 @@ module.exports.getUserMe = (req, res, next) => {
     });
 };
 
-module.exports.getUser = (req, res, next) => {
-  const { userId } = req.params;
-
-  User.findById(userId)
-    .then((user) => {
-      if (!user) {
-        return next(new DataNotFoundError('Пользователь не найден'));
-      }
-
-      res.send({ data: user });
-    })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return next(new BadRequestError('Переданы некорректный id пользователя'));
-      }
-
-      next(err);
-    });
-};
-
-module.exports.createUser = (req, res, next) => {
-  const {
-    name, about, avatar, email, password,
-  } = req.body;
-
-  bcrypt.hash(password, 10)
-    .then((hash) => User.create({
-      name,
-      about,
-      avatar,
-      email,
-      password: hash,
-    }))
-    .then((user) => {
-      const userData = user.toObject();
-      delete userData.password;
-
-      res.send({ data: userData });
-    })
-    .catch((err) => {
-      if (err.code === 11000) {
-        return next(new ConflictError('Пользователь с таким email уже зарегестрирован'));
-      }
-      if (err.name === 'ValidationError') {
-        return next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
-      }
-
-      next(err);
-    });
-};
-
 module.exports.updateUserProfile = (req, res, next) => {
-  const { name, about } = req.body;
+  const { email, name } = req.body;
   const { _id } = req.user;
 
   User.findByIdAndUpdate(
     _id,
-    { name, about },
+    { email, name },
     {
       new: true,
       runValidators: true,
@@ -110,28 +53,29 @@ module.exports.updateUserProfile = (req, res, next) => {
     });
 };
 
-module.exports.updateUserAvatar = (req, res, next) => {
-  const { avatar } = req.body;
-  const { _id } = req.user;
+module.exports.createUser = (req, res, next) => {
+  const {
+    name, email, password,
+  } = req.body;
 
-  User.findByIdAndUpdate(
-    _id,
-    { avatar },
-    {
-      new: true,
-      runValidators: true,
-    },
-  )
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      name,
+      email,
+      password: hash,
+    }))
     .then((user) => {
-      if (!user) {
-        return next(new BadRequestError('Пользователь с указанным _id не найден'));
-      }
+      const userData = user.toObject();
+      delete userData.password;
 
-      res.send({ data: user });
+      res.send({ data: userData });
     })
     .catch((err) => {
+      if (err.code === 11000) {
+        return next(new ConflictError('Пользователь с таким email уже зарегестрирован'));
+      }
       if (err.name === 'ValidationError') {
-        return next(new BadRequestError('Переданы некорректные данные при обновлении аватара.'));
+        return next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
       }
 
       next(err);
