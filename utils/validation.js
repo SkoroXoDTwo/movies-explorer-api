@@ -1,19 +1,18 @@
 const { celebrate, Joi } = require('celebrate');
-const { isValidObjectId } = require('mongoose');
+// const { isValidObjectId } = require('mongoose');
 
-const customValidationObjectId = (id, helpers) => {
-  if (!isValidObjectId(id)) {
-    return helpers.error('id.invalid');
-  }
+// // const customValidationObjectId = (id, helpers) => {
+// //   if (!isValidObjectId(id)) {
+// //     return helpers.error('id.invalid');
+// //   }
 
-  return id;
-};
+// //   return id;
+// // };
+const urlPattern = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/;
 
 const validationSignup = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(/^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/),
     email: Joi.string().required().email(),
     password: Joi.string().required().min(8),
   }),
@@ -29,20 +28,23 @@ const validationSignin = celebrate({
 const validationUpdateUserProfile = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
+    email: Joi.string().required().email(),
   }),
 });
 
-const validationCreateCard = celebrate({
+const validationCreateMovie = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required().pattern(/^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/),
-  }),
-});
-
-const validationParamsControllersCards = celebrate({
-  params: Joi.object().keys({
-    cardId: Joi.string().custom(customValidationObjectId, 'custom objectId validation'),
+    country: Joi.string().required(),
+    director: Joi.string().required(),
+    duration: Joi.number().required(),
+    year: Joi.number().required(),
+    description: Joi.string().required(),
+    image: Joi.string().required().pattern(),
+    trailerLink: Joi.string().required().pattern(urlPattern),
+    thumbnail: Joi.string().required().pattern(urlPattern),
+    movieId: Joi.string().required(),
+    nameRU: Joi.string().required(),
+    nameEN: Joi.string().required(),
   }),
 });
 
@@ -50,6 +52,5 @@ module.exports = {
   validationSignup,
   validationSignin,
   validationUpdateUserProfile,
-  validationCreateCard,
-  validationParamsControllersCards,
+  validationCreateMovie,
 };
