@@ -24,10 +24,10 @@ const app = express();
 mongoose.set('strictQuery', true);
 mongoose.connect('mongodb://127.0.0.1:27017/bitfilmsdb');
 
-// const limiter = rateLimit({
-//   windowMs: 15 * 60 * 1000,
-//   max: 100,
-// });
+const limiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 100,
+});
 
 app.use(requestLogger);
 // app.use(limiter);

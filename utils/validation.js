@@ -1,13 +1,13 @@
 const { celebrate, Joi } = require('celebrate');
-// const { isValidObjectId } = require('mongoose');
+const { isValidObjectId } = require('mongoose');
 
-// // const customValidationObjectId = (id, helpers) => {
-// //   if (!isValidObjectId(id)) {
-// //     return helpers.error('id.invalid');
-// //   }
+const customValidationObjectId = (id, helpers) => {
+  if (!isValidObjectId(id)) {
+    return helpers.error('id.invalid');
+  }
 
-// //   return id;
-// // };
+  return id;
+};
 const urlPattern = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/;
 
 const validationSignup = celebrate({
@@ -39,12 +39,18 @@ const validationCreateMovie = celebrate({
     duration: Joi.number().required(),
     year: Joi.number().required(),
     description: Joi.string().required(),
-    image: Joi.string().required().pattern(/^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/),
-    trailerLink: Joi.string().required().pattern(/^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/),
-    thumbnail: Joi.string().required().pattern(/^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/),
-    movieId: Joi.string().required(),
+    image: Joi.string().required().pattern(urlPattern),
+    trailerLink: Joi.string().required().pattern(urlPattern),
+    thumbnail: Joi.string().required().pattern(urlPattern),
+    movieId: Joi.string().custom(customValidationObjectId, 'custom objectId validation'),
     nameRU: Joi.string().required(),
     nameEN: Joi.string().required(),
+  }),
+});
+
+const validationParamsControllersMovies = celebrate({
+  params: Joi.object().keys({
+    movieId: Joi.string().custom(customValidationObjectId, 'custom objectId validation'),
   }),
 });
 
@@ -53,4 +59,5 @@ module.exports = {
   validationSignin,
   validationUpdateUserProfile,
   validationCreateMovie,
+  validationParamsControllersMovies,
 };
