@@ -30,7 +30,7 @@ const limiter = rateLimit({
 });
 
 app.use(requestLogger);
-// app.use(limiter);
+app.use(limiter);
 app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
