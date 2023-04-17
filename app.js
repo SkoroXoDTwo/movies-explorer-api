@@ -22,7 +22,7 @@ const { PORT = 3000 } = process.env;
 const app = express();
 
 mongoose.set('strictQuery', true);
-mongoose.connect('mongodb://127.0.0.1:27017/portfoliodb');
+mongoose.connect('mongodb://127.0.0.1:27017/bitfilmsdb');
 
 // const limiter = rateLimit({
 //   windowMs: 15 * 60 * 1000,
@@ -41,8 +41,8 @@ app.post('/signup', validationSignup, createUser);
 
 app.use(auth);
 
-// app.use('/users', require('./routes/users'));
-// app.use('/cards', require('./routes/cards'));
+app.use('/users', require('./routes/users'));
+app.use('/movies', require('./routes/movies'));
 
 app.use('*', pageNotFound);
 
