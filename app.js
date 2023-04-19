@@ -1,5 +1,4 @@
 const express = require('express');
-const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -8,6 +7,7 @@ const { errors } = require('celebrate');
 require('dotenv').config();
 
 const { validationSignup, validationSignin } = require('./utils/validation');
+const limiter = require('./utils/limiter');
 
 const { createUser, login } = require('./controllers/users');
 
@@ -23,11 +23,6 @@ const app = express();
 
 mongoose.set('strictQuery', true);
 mongoose.connect('mongodb://127.0.0.1:27017/bitfilmsdb');
-
-const limiter = rateLimit({
-  windowMs: 60 * 60 * 1000,
-  max: 100,
-});
 
 app.use(requestLogger);
 app.use(limiter);
