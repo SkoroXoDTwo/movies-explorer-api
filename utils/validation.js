@@ -1,5 +1,13 @@
 const { celebrate, Joi } = require('celebrate');
+const { isValidObjectId } = require('mongoose');
 
+const customValidationObjectId = (id, helpers) => {
+  if (!isValidObjectId(id)) {
+    return helpers.error('id.invalid');
+  }
+
+  return id;
+};
 const urlPattern = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/;
 
 const validationSignup = celebrate({
@@ -42,7 +50,7 @@ const validationCreateMovie = celebrate({
 
 const validationParamsControllersMovies = celebrate({
   params: Joi.object().keys({
-    movieId: Joi.number().required(),
+    movieId: Joi.string().custom(customValidationObjectId, 'custom objectId validation'),
   }),
 });
 

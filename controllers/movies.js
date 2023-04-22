@@ -54,6 +54,8 @@ module.exports.deleteMovie = (req, res, next) => {
   const { movieId } = req.params;
   const { _id } = req.user;
 
+  console.log(movieId);
+
   Movie.findById(movieId)
     .then((movie) => {
       if (!movie) {
