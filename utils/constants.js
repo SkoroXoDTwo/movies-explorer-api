@@ -8,5 +8,8 @@ module.exports.INCORRECT_DATA_CREATE_USER = 'Переданы некоррект
 module.exports.INVALID_TOKEN = 'Некорректный токен';
 module.exports.ERROR_ON_THE_SERVER = 'На сервере произошла ошибка';
 module.exports.REQUESTED_ADDRESS_NOT_FOUND = 'Запрашиваемый адрес не найден';
+module.exports.INCORRECT_EMAIL_OR_PASSWORD = 'Неправильная почта или пароль';
+module.exports.INCORRECT_EMAIL = 'Email некорректный';
+module.exports.INCORRECT_LINK = 'Ссылка некорректная';
 module.exports.TOKEN_LIFETIME = '7d';
 module.exports.URL_PATTERN = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/;
