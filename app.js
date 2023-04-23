@@ -4,8 +4,6 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
 
-require('dotenv').config();
-
 const limiter = require('./utils/limiter');
 
 const errorHandler = require('./middlewares/errorHandler');
@@ -14,12 +12,12 @@ const cors = require('./middlewares/cors');
 
 const router = require('./routes');
 
-const { PORT = 3000 } = process.env;
+const { PORT_CONFIG, DB_CONFIG } = require('./utils/config');
 
 const app = express();
 
 mongoose.set('strictQuery', true);
-mongoose.connect('mongodb://127.0.0.1:27017/bitfilmsdb');
+mongoose.connect(DB_CONFIG);
 
 app.use(requestLogger);
 app.use(limiter);
@@ -35,6 +33,6 @@ app.use(errorLogger);
 app.use(errors());
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
+app.listen(PORT_CONFIG, () => {
+  console.log(`App listening on port ${PORT_CONFIG}`);
 });

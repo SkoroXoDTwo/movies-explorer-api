@@ -1,10 +1,20 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+const { JWT_SECRET_CONFIG } = require('../utils/config');
+
 const User = require('../models/user');
 const DataNotFoundError = require('../errors/DataNotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
+
+const {
+  USER_NOT_FOUND,
+  EMAIL_ALREADY_REGISTERED,
+  INCORRECT_DATA_UPDATE_USER_INFO,
+  INCORRECT_DATA_CREATE_USER,
+  TOKEN_LIFETIME,
+} = require('../utils/constants');
 
 module.exports.getUserMe = (req, res, next) => {
   const { _id } = req.user;
@@ -12,17 +22,11 @@ module.exports.getUserMe = (req, res, next) => {
   User.findById(_id)
     .then((user) => {
       if (!user) {
-        return next(new DataNotFoundError('Пользователь не найден'));
+        return next(new DataNotFoundError(USER_NOT_FOUND));
       }
       res.send({ data: user });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return next(new BadRequestError('Переданы некорректный id пользователя'));
-      }
-
-      next(err);
-    });
+    .catch(next);
 };
 
 module.exports.updateUserProfile = (req, res, next) => {
@@ -39,14 +43,18 @@ module.exports.updateUserProfile = (req, res, next) => {
   )
     .then((user) => {
       if (!user) {
-        return next(new BadRequestError('Пользователь с указанным _id не найден'));
+        return next(new DataNotFoundError(USER_NOT_FOUND));
       }
 
       res.send({ data: user });
     })
     .catch((err) => {
+      if (err.code === 11000) {
+        return next(new ConflictError(EMAIL_ALREADY_REGISTERED));
+      }
+
       if (err.name === 'ValidationError') {
-        return next(new BadRequestError('Переданы некорректные данные при обновлении профиля.'));
+        return next(new BadRequestError(INCORRECT_DATA_UPDATE_USER_INFO));
       }
 
       next(err);
@@ -72,10 +80,10 @@ module.exports.createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.code === 11000) {
-        return next(new ConflictError('Пользователь с таким email уже зарегестрирован'));
+        return next(new ConflictError(EMAIL_ALREADY_REGISTERED));
       }
       if (err.name === 'ValidationError') {
-        return next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+        return next(new BadRequestError(INCORRECT_DATA_CREATE_USER));
       }
 
       next(err);
@@ -87,12 +95,10 @@ module.exports.login = (req, res, next) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const { NODE_ENV, JWT_SECRET } = process.env;
-
       const token = jwt.sign(
         { _id: user._id },
-        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
-        { expiresIn: '7d' },
+        JWT_SECRET_CONFIG,
+        { expiresIn: TOKEN_LIFETIME },
       );
 
       res.send({ token });

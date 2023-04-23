@@ -3,10 +3,20 @@ const DataNotFoundError = require('../errors/DataNotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const ForbiddenError = require('../errors/ForbiddenError');
 
+const {
+  INCORRECT_DATA_CREATE_MOVIES,
+  MOVIE_NOT_FOUND,
+  NOT_ENOUGH_RIGHTS,
+} = require('../utils/constants');
+
 module.exports.getMovies = (req, res, next) => {
+  const { _id } = req.user;
+
   Movie.find({})
     .populate(['owner'])
-    .then((movies) => res.send({ data: movies }))
+    .then((movies) => res.send({
+      data: movies.filter((movie) => movie.owner._id.toString() === _id),
+    }))
     .catch(next);
 };
 
@@ -43,7 +53,7 @@ module.exports.createMovie = (req, res, next) => {
     .then((movie) => res.send({ data: movie }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return next(new BadRequestError('Переданы некорректные данные при создании фильма.'));
+        return next(new BadRequestError(INCORRECT_DATA_CREATE_MOVIES));
       }
 
       next(err);
@@ -59,10 +69,10 @@ module.exports.deleteMovie = (req, res, next) => {
   Movie.findById(movieId)
     .then((movie) => {
       if (!movie) {
-        return next(new DataNotFoundError('Фильм с указанным _id не найден.'));
+        return next(new DataNotFoundError(MOVIE_NOT_FOUND));
       }
       if (_id !== movie.owner.toString()) {
-        return next(new ForbiddenError('Недостаточно прав'));
+        return next(new ForbiddenError(NOT_ENOUGH_RIGHTS));
       }
 
       movie.remove()

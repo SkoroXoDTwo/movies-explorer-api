@@ -1,6 +1,10 @@
 const { celebrate, Joi } = require('celebrate');
 const { isValidObjectId } = require('mongoose');
 
+const {
+  URL_PATTERN,
+} = require('./constants');
+
 const customValidationObjectId = (id, helpers) => {
   if (!isValidObjectId(id)) {
     return helpers.error('id.invalid');
@@ -8,26 +12,25 @@ const customValidationObjectId = (id, helpers) => {
 
   return id;
 };
-const urlPattern = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/;
 
 const validationSignup = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
+    name: Joi.string().required().min(2).max(30),
     email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
+    password: Joi.string().required(),
   }),
 });
 
 const validationSignin = celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
+    password: Joi.string().required(),
   }),
 });
 
 const validationUpdateUserProfile = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
+    name: Joi.string().required().min(2).max(30),
     email: Joi.string().required().email(),
   }),
 });
@@ -37,11 +40,11 @@ const validationCreateMovie = celebrate({
     country: Joi.string().required(),
     director: Joi.string().required(),
     duration: Joi.number().required(),
-    year: Joi.number().required(),
+    year: Joi.string().required(),
     description: Joi.string().required(),
-    image: Joi.string().required().pattern(urlPattern),
-    trailerLink: Joi.string().required().pattern(urlPattern),
-    thumbnail: Joi.string().required().pattern(urlPattern),
+    image: Joi.string().required().pattern(URL_PATTERN),
+    trailerLink: Joi.string().required().pattern(URL_PATTERN),
+    thumbnail: Joi.string().required().pattern(URL_PATTERN),
     movieId: Joi.number().required(),
     nameRU: Joi.string().required(),
     nameEN: Joi.string().required(),
