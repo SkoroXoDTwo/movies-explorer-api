@@ -76,7 +76,13 @@ module.exports.createUser = (req, res, next) => {
       const userData = user.toObject();
       delete userData.password;
 
-      res.send({ data: userData });
+      const token = jwt.sign(
+        { _id: user._id },
+        JWT_SECRET_CONFIG,
+        { expiresIn: TOKEN_LIFETIME },
+      );
+
+      res.send({ data: userData, token });
     })
     .catch((err) => {
       if (err.code === 11000) {
